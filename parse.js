@@ -1,12 +1,12 @@
 const args = require("node-args-parser")(process.argv)
-var number = args.number;
+let number = args.number;
 if (number === 'undefined') process.exit();
 console.log("\007");
-var posix = require('posix');
+let posix = require('posix');
 posix.setrlimit('nofile', {soft: 10000});  // multiple connections require a lot of open session files
 
-var RateLimiter = require('request-rate-limiter');
-var limiter = new RateLimiter({
+let RateLimiter = require('request-rate-limiter');
+let limiter = new RateLimiter({
     rate: 200              // requests per interval,
     // defaults to 60
     , interval: 30          // interval for the rate, x
@@ -21,18 +21,18 @@ var limiter = new RateLimiter({
     // n seconds or more. defaults
     // to 5 minutes
 });
-var fs = require('fs'),
+let fs = require('fs'),
     JSONStream = require('JSONStream'),  // we will use Streams beacuse of large files
     es = require('event-stream');
-var request = require('request');
-var getStream = function () {
-    var jsonData = 'all' + number + '.json',
+let request = require('request');
+let getStream = function () {
+    let jsonData = 'all' + number + '.json',
         stream = fs.createReadStream(jsonData, {encoding: 'utf8'}),
         parser = JSONStream.parse('*');
     return stream.pipe(parser);
 };
-var csvWriter = require('csv-write-stream')   // we will write to Stream also
-var writer = csvWriter(
+let csvWriter = require('csv-write-stream')   // we will write to Stream also
+let writer = csvWriter(
     {
         separator: '\t',
         newline: '\n',
@@ -45,10 +45,10 @@ writer.pipe(fs.createWriteStream('all' + number + '.csv'));
 getStream()
     .pipe(es.mapSync(function (data) {
             // console.log(data);
-            for (var i in data) {
-                (function (i) {   // create anonymoues function to collect data from file and corresponding request (
+            for (let i in data) {
+                (i => {   // create anonymoues function to collect data from file and corresponding request (
 
-                    var firmaUrl = 'https://dom.gosuslugi.ru/ppa/api/rest/services/ppa/public/organizations/orgByGuid?organizationGuid=' + data[i].guid;
+                    let firmaUrl = 'https://dom.gosuslugi.ru/ppa/api/rest/services/ppa/public/organizations/orgByGuid?organizationGuid=' + data[i].guid;
                     limiter.request(function (err, backoff) {   // use request Rate limiter, beacuse nodejs tries to open all requests at once, and the last ones - fail due to timeout.
                         if (err) {
                             console.log('the err object is set if the limiter is overflowing or is not able to execute your request in time');
@@ -79,7 +79,7 @@ getStream()
                                             if (body.postalAddress.city !== null) cityPostal = body.postalAddress.city.offName; else  cityPostal = '';
                                             if (data[i].factualAddress.region !== null) factualRegion = data[i].factualAddress.region.offName; else factualRegion = '';
                                             if (body.postalAddress.region !== null) oblastPostal = body.postalAddress.region.offName; else oblastPostal = '';
-                                            var org = {
+                                            let org = {
                                                 'fullName': data[i].fullName,
                                                 'shortName': data[i].shortName,
                                                 'phone': data[i].phone,
