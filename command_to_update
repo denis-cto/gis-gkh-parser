@@ -1,0 +1,7 @@
+sudo npm cache clean -f
+sudo npm install -g n
+sudo n stable
+npm install pm2@latest -g
+
+npm install -g localtunnel
+
